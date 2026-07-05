@@ -3,131 +3,201 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="description" content="DevOps-Agent-X: AI-powered DevOps orchestrator for incident analysis, code fix generation, and log analysis. Powered by Google Gemini on Cloud Run." />
-    <title>DevOps-Agent-X | AI DevOps Dashboard</title>
+    <meta name="description" content="Ops Arena – Watch CI/CD deployments, incidents, and rollback decisions like a live match. Powered by Google Gemini on Cloud Run." />
+    <title>Ops Arena | DevOps Watch Party</title>
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;900&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
   </head>
   <body>
-    <!-- Demo banner (shown when GEMINI_API_KEY is not set) -->
+
+    <!-- Demo banner -->
     <div id="demo-banner" class="demo-banner hidden">
-      ⚠️ <strong>DEMO MODE</strong> – Running with deterministic fallbacks. Set <code>GEMINI_API_KEY</code> for live Gemini responses.
+      ⚠️ <strong>DEMO MODE</strong> – Running with deterministic spectator fallbacks. Set <code>GEMINI_API_KEY</code> for live Gemini commentary.
     </div>
 
     <div id="app">
+
+      <!-- ── Sidebar ──────────────────────────────────────────── -->
       <nav class="sidebar glass">
         <div class="logo">
-          <div class="logo-icon"></div>
-          <h1>Agent-X</h1>
+          <div class="logo-icon">🏟️</div>
+          <div class="logo-text">
+            <h1>Ops Arena</h1>
+            <span class="logo-sub">DevOps Watch Party</span>
+          </div>
         </div>
         <ul class="nav-links">
-          <li class="active" data-target="create">🔨 Create</li>
-          <li data-target="operate">📊 Operate</li>
-          <li data-target="incident">🚨 Incident</li>
+          <li class="active" data-target="match">🎙️ Live Match</li>
+          <li data-target="create">🔨 Tactics Lab</li>
+          <li data-target="operate">📊 Log Scout</li>
         </ul>
         <div class="status-indicator" id="agent-status">
           <div class="dot pulsing"></div>
-          <span>Agent Online</span>
+          <span>Commentator Live</span>
         </div>
       </nav>
 
+      <!-- ── Main ─────────────────────────────────────────────── -->
       <main class="content">
+
+        <!-- Topbar -->
         <header class="topbar glass">
           <div>
-            <h2>DevOps AI Agent Dashboard</h2>
-            <p class="topbar-sub">Powered by Google Gemini · Deployed on Cloud Run</p>
+            <h2>🏟️ DevOps Watch Party</h2>
+            <p class="topbar-sub">Watch deployments like a live match · Powered by Google Gemini × Cloud Run</p>
           </div>
           <div class="user-profile">
-            <span>DevOps Admin</span>
+            <div class="live-badge">● LIVE</div>
             <div class="avatar" aria-label="Admin avatar"></div>
           </div>
         </header>
 
         <div class="panels">
 
-          <!-- ── CREATE PANEL ──────────────────────────────── -->
+          <!-- ═══════════════════════════════════════════════════ -->
+          <!-- LIVE MATCH PANEL (full-width)                       -->
+          <!-- ═══════════════════════════════════════════════════ -->
+          <section id="panel-match" class="panel glass panel-wide panel-match">
+            <div class="panel-header">
+              <h3>🚨 Live Match Analysis <span class="badge badge-red">AI Triage</span></h3>
+              <p>
+                Drop CI/CD logs, Cloud Run errors, or deployment signals — AI becomes your live commentator,
+                delivering play-by-play, scoreboard, tactics board, and a <strong>human-approved</strong> rollback plan.
+              </p>
+            </div>
+            <div class="panel-body">
+              <div class="match-controls">
+                <div class="match-inputs">
+                  <label for="incident-type" class="field-label">Match Type</label>
+                  <select id="incident-type" class="select-input" aria-label="Incident type">
+                    <option value="cloud_run_deployment_failure">☁️ Cloud Run Deployment Failure</option>
+                    <option value="github_actions_failure">⚙️ GitHub Actions CI Failure</option>
+                    <option value="log_anomaly">📊 Log Anomaly / Error Spike</option>
+                    <option value="deploy_failure">🚀 General Deploy Failure</option>
+                    <option value="other">🔧 Other</option>
+                  </select>
+                  <label for="incident-input" class="field-label" style="margin-top:1rem;">Match Context / Incident Payload</label>
+                  <textarea
+                    id="incident-input"
+                    placeholder="Paste deployment logs, error messages, GitHub Actions output, or describe the incident…"
+                    aria-label="Incident context input"
+                  ></textarea>
+                </div>
+                <div class="match-actions">
+                  <button id="incident-btn" class="btn danger" aria-label="Analyze incident">
+                    🎙️ Start Commentary
+                  </button>
+                  <button id="demo-scenario-btn" class="btn outline" aria-label="Load demo scenario">
+                    ⚡ Load Cloud Run Final Match Scenario
+                  </button>
+                </div>
+              </div>
+
+              <div id="incident-loader" class="loader hidden" role="status" aria-label="Loading"></div>
+
+              <!-- Match output: rendered only after analysis -->
+              <div id="incident-output" class="output-container hidden">
+
+                <!-- Match Title -->
+                <div class="match-title-bar" id="match-title-bar"></div>
+
+                <!-- Commentary Headline -->
+                <div class="commentary-headline" id="commentary-headline"></div>
+
+                <!-- Scoreboard + Turning Points (2-col) -->
+                <div class="match-stats-grid">
+                  <div id="scoreboard-section" class="match-card glass-inner">
+                    <h4 class="section-label">📊 Scoreboard</h4>
+                    <div id="scoreboard-content"></div>
+                  </div>
+                  <div id="turning-points-section" class="match-card glass-inner">
+                    <h4 class="section-label">⚡ Turning Points</h4>
+                    <ul id="turning-points-list"></ul>
+                  </div>
+                </div>
+
+                <!-- Play-by-Play (Live Timeline) -->
+                <div class="match-card glass-inner">
+                  <h4 class="section-label">📺 Live Timeline</h4>
+                  <div id="play-by-play-list" class="timeline"></div>
+                </div>
+
+                <!-- Tactics Board + Recovery Plan (2-col) -->
+                <div class="match-stats-grid">
+                  <div class="match-card glass-inner">
+                    <h4 class="section-label">🎯 Tactics Board</h4>
+                    <div id="tactics-board-content"></div>
+                  </div>
+                  <div class="match-card glass-inner">
+                    <h4 class="section-label">🔄 Recovery Plan <em class="approval-tag">(Human Approval Required)</em></h4>
+                    <div id="recovery-plan-content"></div>
+                  </div>
+                </div>
+
+                <!-- Incident Details accordion -->
+                <div class="match-card glass-inner">
+                  <h4 class="section-label">📋 Incident Report</h4>
+                  <div id="incident-result"></div>
+                </div>
+
+              </div>
+            </div>
+          </section>
+
+          <!-- ═══════════════════════════════════════════════════ -->
+          <!-- TACTICS LAB (AI Code Fix – Create)                  -->
+          <!-- ═══════════════════════════════════════════════════ -->
           <section id="panel-create" class="panel glass">
             <div class="panel-header">
-              <h3>Create <span class="badge badge-blue">AI Gen</span></h3>
-              <p>Generate code fixes or infrastructure templates (Terraform/YAML) from issue descriptions.</p>
+              <h3>🔨 Tactics Lab <span class="badge badge-blue">AI Gen</span></h3>
+              <p>Describe the bug or issue — AI generates the infrastructure fix play.</p>
             </div>
             <div class="panel-body">
               <label for="issue-input" class="field-label">Issue Description</label>
               <textarea
                 id="issue-input"
-                placeholder="E.g., The login page is returning a 500 error due to database connection timeout."
+                placeholder="E.g., Cloud Run container OOMKilled with 256Mi limit after traffic spike."
                 aria-label="Issue description input"
               ></textarea>
-              <button id="generate-btn" class="btn primary" aria-label="Generate fix">Generate Fix</button>
-              <div id="create-loader" class="loader hidden" role="status" aria-label="Loading"></div>
+              <button id="generate-btn" class="btn primary" aria-label="Generate fix">Generate Fix Play</button>
+              <div id="create-loader" class="loader hidden" role="status"></div>
               <div id="create-output" class="output-container hidden">
-                <h4>Suggested Fix</h4>
+                <h4>🗂️ Fix Play</h4>
                 <div class="code-block-container" id="create-result"></div>
               </div>
             </div>
           </section>
 
-          <!-- ── OPERATE PANEL ─────────────────────────────── -->
+          <!-- ═══════════════════════════════════════════════════ -->
+          <!-- LOG SCOUT (Operate)                                 -->
+          <!-- ═══════════════════════════════════════════════════ -->
           <section id="panel-operate" class="panel glass">
             <div class="panel-header">
-              <h3>Operate <span class="badge badge-purple">AI Analyze</span></h3>
-              <p>Paste application logs to detect anomalies, bottlenecks, and get actionable remediation steps.</p>
+              <h3>📊 Log Scout <span class="badge badge-purple">AI Analyze</span></h3>
+              <p>Paste raw logs — AI scouts anomalies and proposes remediation steps.</p>
             </div>
             <div class="panel-body">
               <label for="log-input" class="field-label">Application Logs</label>
               <textarea
                 id="log-input"
-                placeholder="Paste your application logs here for analysis..."
+                placeholder="Paste application logs here for AI scouting…"
                 aria-label="Application logs input"
               ></textarea>
-              <button id="analyze-btn" class="btn secondary" aria-label="Analyze logs">Analyze Logs</button>
-              <div id="operate-loader" class="loader hidden" role="status" aria-label="Loading"></div>
+              <button id="analyze-btn" class="btn secondary" aria-label="Analyze logs">Scout Logs</button>
+              <div id="operate-loader" class="loader hidden" role="status"></div>
               <div id="operate-output" class="output-container hidden">
-                <h4>Analysis &amp; Remediation</h4>
+                <h4>📡 Scout Report</h4>
                 <div class="code-block-container" id="operate-result"></div>
               </div>
             </div>
           </section>
 
-          <!-- ── INCIDENT PANEL ─────────────────────────────── -->
-          <section id="panel-incident" class="panel glass panel-wide">
-            <div class="panel-header">
-              <h3>Incident Analysis <span class="badge badge-orange">AI Triage</span></h3>
-              <p>
-                Unified incident analysis for Cloud Run failures, GitHub Actions errors, log anomalies, and deployment
-                failures. Returns structured JSON with severity, risk score, causes, and rollback plans requiring
-                <strong>human approval</strong>.
-              </p>
-            </div>
-            <div class="panel-body">
-              <label for="incident-type" class="field-label">Incident Type</label>
-              <select id="incident-type" class="select-input" aria-label="Incident type">
-                <option value="cloud_run_deployment_failure">Cloud Run Deployment Failure</option>
-                <option value="github_actions_failure">GitHub Actions CI Failure</option>
-                <option value="log_anomaly">Log Anomaly / Error Spike</option>
-                <option value="deploy_failure">General Deploy Failure</option>
-                <option value="other">Other</option>
-              </select>
-              <label for="incident-input" class="field-label" style="margin-top:1rem;">Incident Context / Payload</label>
-              <textarea
-                id="incident-input"
-                placeholder="Paste error message, deployment log, GitHub Actions output, or describe the incident..."
-                aria-label="Incident context input"
-              ></textarea>
-              <button id="incident-btn" class="btn danger" aria-label="Analyze incident">🚨 Analyze Incident</button>
-              <div id="incident-loader" class="loader hidden" role="status" aria-label="Loading"></div>
-              <div id="incident-output" class="output-container hidden">
-                <h4>Incident Report</h4>
-                <div id="incident-result"></div>
-              </div>
-            </div>
-          </section>
-
-        </div>
+        </div><!-- /panels -->
       </main>
-    </div>
+    </div><!-- /app -->
+
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     <script type="module" src="/main.js"></script>
   </body>
