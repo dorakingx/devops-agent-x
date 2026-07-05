@@ -3,6 +3,6 @@
     "type": "cloud_run_deployment_failure",
     "service": "devops-agent-x",
     "region": "us-central1",
-    "payload": "ERROR: (gcloud.run.deploy) Cloud Run error: Container failed to start. Failed to start and then listen on the port defined by the PORT environment variable. Logs:\n2026-07-05T03:00:00Z ERROR Cannot find module '@google/genai'\n2026-07-05T03:00:01Z Process exited with code 1"
+    "payload": "ERROR: (gcloud.run.deploy) Cloud Run error: Container failed to start.\nFailed to start and then listen on the port defined by the PORT environment variable.\nLogs:\n2026-07-06T00:00:01Z ERROR Cannot find module '@google/genai'\n2026-07-06T00:00:02Z ERROR at Function.Module._resolveFilename (node:internal/modules/cjs/loader:933:15)\n2026-07-06T00:00:03Z Process exited with code 1\nHealth check /healthz returned 503 three times consecutively.\nPrevious stable revision: devops-agent-x-00045-abc (currently serving 100% traffic)"
   }
 }

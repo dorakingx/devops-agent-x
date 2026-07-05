@@ -1,42 +1,56 @@
-# DevOps-Agent-X 🤖
+# Ops Arena 🏟️ – DevOps Watch Party
 
-**「つくる、まわす、とどける」を自動化する AI DevOps エージェント**  
+**DevOpsの障害対応を、スポーツ観戦のように体験できるAIエージェント**  
+CI/CD、Cloud Run、ログ、ロールバック判断をAIが実況・解説。  
+開発者だけでなく非エンジニアにも運用の緊張感と意思決定を届ける。
+
 DevOps × AI Agent Hackathon 2026 出品作品 – Google Gemini × Cloud Run
 
 [![CI](https://github.com/dorakingx/devops-agent-x/actions/workflows/ci.yml/badge.svg)](https://github.com/dorakingx/devops-agent-x/actions)
 
 ---
 
-## 概要
+## コンセプト
 
-DevOps-Agent-X は **Google Gemini 2.5 Flash** を中核に持つ DevOps AI エージェントです。  
-開発チームの「つくる・まわす・とどける」すべてのフェーズを 1 つのダッシュボードで支援します。
+```
+CI/CD pipeline failed → 🎙️ AI becomes your live commentator
 
-| 機能 | テーマ | 説明 |
-|---|---|---|
-| **Code Fix Generator** | 🔨 つくる | Issue 説明 → Terraform/YAML/コード修正を自動生成 |
-| **Log Analyzer** | 📊 まわす | アプリログ貼り付け → 異常検知 + 改善アクション提案 |
-| **Incident Analyzer** | 🚨 とどける | Cloud Run 失敗・CI エラーを構造化 JSON でトリアージ |
+📺 Live Timeline   →  play-by-play of every deployment event
+📊 Scoreboard      →  Health Score / Deploy Confidence / Recovery Progress
+⚡ Turning Points  →  key moments that decided the match
+🎯 Tactics Board   →  immediate → mid-term → long-term response moves
+🔄 Recovery Plan   →  rollback steps (human approval required)
+```
 
-### 安全設計原則
-> DevOps-Agent-X は **提案** するだけです。  
-> ロールバックや削除などの破壊的操作は、必ず **人間の承認** を前提とした推奨手順として表示します。  
-> エージェントが本番環境を自律的に変更することは **設計上不可能** です。
+| テーマ | Ops Arena の実装 |
+|---|---|
+| **🔨 つくる** | Tactics Lab: Issue → Gemini が Terraform/YAML/コード修正を生成 |
+| **📊 まわす** | Log Scout: ログ異常検知 + 改善提案 |
+| **🚨 とどける** | Live Match: Cloud Run / CI インシデントを AI が実況・構造化 JSON で出力 |
 
 ---
 
 ## アーキテクチャ
 
 ```
-Browser (Vite SPA)
+Browser (Vite SPA – Ops Arena UI)
     │  same-origin fetch /api/*
     ▼
 Express.js backend (Cloud Run / Docker)
-    ├── GET  /healthz            ← liveness probe
-    ├── GET  /api/health         ← status + demo_mode flag
-    ├── POST /api/generate-fix   ← Gemini: コード修正生成
-    ├── POST /api/analyze-logs   ← Gemini: ログ異常検知
-    └── POST /api/analyze-incident ← Gemini: 統合インシデント解析 (structured JSON)
+    ├── GET  /healthz                 ← liveness probe
+    ├── GET  /api/health              ← status + demo_mode flag
+    ├── POST /api/generate-fix        ← Tactics Lab (Create)
+    ├── POST /api/analyze-logs        ← Log Scout (Operate)
+    └── POST /api/analyze-incident    ← Live Match (spectator JSON)
+             ├── match_title
+             ├── commentary_headline
+             ├── play_by_play[]
+             ├── scoreboard { home, away, health_score, … }
+             ├── turning_points[]
+             ├── tactics_board { formation, immediate, mid, long }
+             ├── rollback_plan  (human approval required)
+             ├── severity / risk_score / likely_causes
+             └── safety_notes[]
 ```
 
 ---
@@ -45,7 +59,7 @@ Express.js backend (Cloud Run / Docker)
 
 ### 必要なもの
 - Node.js v20+
-- Gemini API Key（[Google AI Studio](https://aistudio.google.com/app/apikey) で無料取得）
+- Gemini API Key（[Google AI Studio](https://aistudio.google.com/app/apikey)）– **未設定でも DEMO MODE で動作**
 
 ### セットアップ
 
@@ -53,11 +67,9 @@ Express.js backend (Cloud Run / Docker)
 git clone https://github.com/dorakingx/devops-agent-x.git
 cd devops-agent-x
 
-# 環境変数の設定
 cp .env.example backend/.env
-# backend/.env を開き GEMINI_API_KEY を設定する
+# .env を開き GEMINI_API_KEY を設定（任意）
 
-# バックエンドの起動
 cd backend
 npm install
 npm start
@@ -65,21 +77,21 @@ npm start
 ```
 
 > **API Key なしでも動きます**  
-> `GEMINI_API_KEY` が未設定の場合は **DEMO MODE** で起動し、決定論的なフォールバック応答を返します。  
-> テスト・デモ・審査用途に最適です。
+> `GEMINI_API_KEY` 未設定時は **DEMO MODE** で起動。スコアボード・タイムライン・戦術ボードを含む  
+> リッチなスペクテイター出力が deterministic に返ります。審査・デモに最適です。
 
 ### フロントエンド（開発時）
 
 ```bash
 cd frontend
-npm install
-
-# .env.local を作成して API ベースを設定
-echo "VITE_API_BASE=http://localhost:3000" > .env.local
-
-npm run dev
+echo 'VITE_API_BASE=http://localhost:3000' > .env.local
+npm install && npm run dev
 # → http://localhost:5173
 ```
+
+### デモシナリオを試す
+ブラウザで `⚡ Load Cloud Run Final Match Scenario` ボタンをクリックするだけで、  
+Cloud Run デプロイ失敗の実況レポートが表示されます。
 
 ---
 
@@ -87,94 +99,61 @@ npm run dev
 
 ```bash
 cd backend
-npm test
-# Node.js 組み込みテストランナーを使用（追加依存なし）
-# DEMO MODE で実行 – API Key 不要
+npm ci && npm test
+# 13 tests, 0 failures
+# Node.js 組み込みテストランナー – API Key 不要
 ```
 
 テスト内容:
-- `GET /healthz` – 200 応答確認
-- `GET /api/health` – demo_mode フラグ確認
-- `POST /api/generate-fix` – DEMO 応答 + バリデーション
-- `POST /api/analyze-logs` – DEMO 応答 + バリデーション
-- `POST /api/analyze-incident` – 構造化 JSON スキーマ確認
-- **安全性テスト** – `rollback_plan.description` に人間承認フレーズが含まれること
+- `/healthz` · `/api/health` の基本確認
+- `generate-fix` · `analyze-logs` の DEMO 応答 + バリデーション
+- `analyze-incident` の構造化 JSON スキーマ（既存フィールド）
+- **スペクテイターフィールド検証**: `match_title`, `commentary_headline`, `play_by_play`, `scoreboard`, `turning_points`, `tactics_board`
+- **安全性テスト**: `rollback_plan.description` に人間承認フレーズを含むこと
 
 ---
 
 ## Cloud Run デプロイ
 
-### 方法 1: ワンコマンド（最速）
-
 ```bash
+# ワンコマンド
 gcloud run deploy devops-agent-x \
   --source . \
   --region us-central1 \
   --allow-unauthenticated \
   --memory 512Mi \
   --set-secrets GEMINI_API_KEY=GEMINI_API_KEY:latest
-```
 
-### 方法 2: Cloud Build（CI/CD）
-
-```bash
+# または Cloud Build
 gcloud builds submit --config cloudbuild.yaml
-```
-
-### 方法 3: Docker ローカルビルド
-
-```bash
-docker build -t devops-agent-x .
-docker run -p 8080:8080 -e GEMINI_API_KEY=your_key devops-agent-x
 ```
 
 ---
 
 ## デモシナリオ
 
-### シナリオ 1: コード修正生成（つくる）
-1. 「Create」パネルを開く
-2. Issue 説明を入力:  
-   `The login service crashes with OOMKilled. Memory limit is 256Mi.`
-3. 「Generate Fix」をクリック
-4. Gemini が Kubernetes リソース制限の修正 YAML を生成
+### シナリオ 1: ワンクリックデモ
+ブラウザで「⚡ Load Cloud Run Final Match Scenario」をクリック → AI が即座に実況開始
 
-### シナリオ 2: ログ解析（まわす）
-1. 「Operate」パネルを開く
-2. ログを貼り付け:
-   ```
-   ERROR DB connection refused after 3 retries
-   WARN Circuit breaker opened for downstream-service
-   ERROR 503 Service Unavailable
-   ```
-3. 「Analyze Logs」をクリック
-4. Gemini が異常パターンを特定し改善手順を提案
-
-### シナリオ 3: インシデントトリアージ（とどける）
-1. 「Incident」パネルを開く
-2. タイプ「Cloud Run Deployment Failure」を選択
-3. `examples/incident-payload.json` の内容を貼り付け
-4. 「Analyze Incident」をクリック
-5. 構造化レポートが表示（severity / risk_score / rollback_plan）
-
-### デモスクリプト実行
+### シナリオ 2: CLI デモ
 
 ```bash
 chmod +x demo.sh
-./demo.sh http://localhost:3000          # ローカル
-./demo.sh https://<CLOUD_RUN_URL>       # Cloud Run
+./demo.sh http://localhost:3000
+# 出力例:
+# 🏆 Match Title:     Cloud Run Final Match: Deployment Showdown
+# 🎙️  Headline:        🔴 LIVE — Container is down, crowd on its feet!
+# 📊 Health Score:    45
+# ⚡ Turning Point 1: Container startup failed at PORT binding stage
 ```
 
 ---
 
-## 提出前の残作業
+## 安全設計
 
-- [ ] Cloud Run へのデプロイと URL 確認
-- [ ] PROTOPEDIA.md を ProtoPedia に転記・デモ URL 追加
-- [ ] デモ動画または GIF を撮影して README に追加
-- [ ] 提出フォームへの記入（期限: 2026年7月10日）
-
-詳細は [SUBMISSION_CHECKLIST.md](./SUBMISSION_CHECKLIST.md) を参照。
+- ロールバック・削除コマンドは **`rollback_plan` の推奨手順** としてのみ表示
+- `rollback_plan.description` に必ず「human approval required」フレーズを含む（テスト検証済み）
+- エージェントが本番リソースを **自律変更するコードは存在しない**
 
 ---
 
@@ -183,24 +162,20 @@ chmod +x demo.sh
 ```
 devops-agent-x/
 ├── backend/
-│   ├── index.js              # Express server + Gemini integration
+│   ├── index.js                # Express + Gemini + spectator fallbacks
 │   ├── package.json
-│   └── tests/
-│       └── index.test.js     # Node built-in test runner
+│   └── tests/index.test.js     # 13 tests (Node built-in runner)
 ├── frontend/
-│   ├── index.html            # SPA with 3 AI panels
-│   ├── main.js               # Same-origin API client
-│   └── style.css             # Glassmorphism dark theme
-├── .github/workflows/
-│   └── ci.yml                # GitHub Actions CI
-├── examples/
-│   └── incident-payload.json # Example API payload
-├── Dockerfile                # Multi-stage build
-├── cloudbuild.yaml           # Cloud Build / Cloud Run CD
-├── .env.example
-├── demo.sh                   # Demo script
-├── PROTOPEDIA.md             # ProtoPedia 提出文
-└── SUBMISSION_CHECKLIST.md   # 提出チェックリスト
+│   ├── index.html              # Ops Arena UI (Live Match / Tactics Lab / Log Scout)
+│   ├── main.js                 # Scoreboard / timeline / tactics renderer
+│   └── style.css               # Spectator dark theme + match UI
+├── .github/workflows/ci.yml    # GitHub Actions CI
+├── examples/incident-payload.json
+├── Dockerfile
+├── cloudbuild.yaml
+├── demo.sh
+├── PROTOPEDIA.md
+└── SUBMISSION_CHECKLIST.md
 ```
 
 ---

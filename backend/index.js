@@ -62,12 +62,53 @@ Detected elevated error rate in provided logs.
 
 function fallbackIncidentAnalysis(payload) {
   return {
+    // ── Spectator-style fields ───────────────────────────────────────────
+    match_title: '🏆 Cloud Run Final Match: Deployment Showdown',
+    commentary_headline:
+      '🔴 LIVE — New revision fails to start! The Container is down, crowd on its feet!',
+    play_by_play: [
+      '⚡ [00:00] Kick-off: gcloud run deploy triggered for devops-agent-x v2.1.0',
+      '🟡 [00:12] First half: Container image pulled successfully from GCR — good start!',
+      '🔴 [00:23] INCIDENT! Container failed to start — PORT binding error detected.',
+      '🚨 [00:31] Health check /healthz returning 503. Traffic still routed to old revision.',
+      '🔄 [00:45] Coach decision point: Roll back to v2.0.9 or hot-patch v2.1.0?',
+      '✅ [01:02] Interim: 100% traffic redirected to stable revision v2.0.9.',
+      '🔍 [01:15] Post-match analysis: Missing ENV var PORT=8080 in new revision config.',
+    ],
+    scoreboard: {
+      home: { name: 'New Revision (v2.1.0)', score: 0, status: 'FAILED' },
+      away: { name: 'Stable Revision (v2.0.9)', score: 1, status: 'SERVING' },
+      health_score: 45,
+      deployment_confidence: 20,
+      recovery_progress: 70,
+    },
+    turning_points: [
+      'Container startup failed at the PORT binding stage — environment variable missing.',
+      'Health check failures triggered automatic traffic hold — preventing full outage.',
+      'Manual rollback to v2.0.9 restored service within 62 seconds.',
+    ],
+    tactics_board: {
+      formation: '4-2-3-1 (Observe → Contain → Rollback → Fix → Re-deploy)',
+      immediate_moves: [
+        'Redirect 100% traffic to v2.0.9 immediately',
+        'Inspect new revision startup logs in Cloud Logging',
+      ],
+      mid_term_moves: [
+        'Add PORT env var to Cloud Run revision config',
+        'Add startup probe to catch port binding failures earlier in CI',
+      ],
+      long_term_moves: [
+        'Enforce env-var schema validation in CI pipeline before deploy',
+        'Add canary deployment strategy (10% → 50% → 100%)',
+      ],
+    },
+    // ── Existing structured fields ───────────────────────────────────────
     incident_summary:
-      '[DEMO] Potential deployment failure detected in Cloud Run service. Elevated 5xx rate observed after latest revision.',
+      '[DEMO] Cloud Run deployment failure: new revision v2.1.0 failed to start due to missing PORT environment variable. Automatic traffic hold prevented full outage.',
     severity: 'HIGH',
     risk_score: 7,
     likely_causes: [
-      'Missing or incorrect environment variable in new revision',
+      'Missing PORT=8080 environment variable in new revision configuration',
       'Dependency version incompatibility introduced in latest commit',
       'Insufficient Cloud Run instance memory limit',
     ],
@@ -78,10 +119,10 @@ function fallbackIncidentAnalysis(payload) {
     ],
     rollback_plan: {
       description:
-        '⚠️ Human approval required before executing rollback. Run only after confirming impact.',
+        '⚠️ Human approval required before executing rollback. Run only after confirming impact with your team.',
       steps: [
         '1. Identify previous stable revision: gcloud run revisions list',
-        '2. Send 100% traffic to stable revision: gcloud run services update-traffic <SERVICE> --to-revisions=<STABLE_REV>=100',
+        '2. Redirect 100% traffic: gcloud run services update-traffic <SERVICE> --to-revisions=<STABLE_REV>=100',
         '3. Verify traffic split: gcloud run services describe <SERVICE>',
         '4. Alert on-call team via PagerDuty / Slack',
       ],
@@ -113,18 +154,18 @@ app.get('/api/health', (req, res) => {
   res.json({
     status: 'ok',
     agent: 'DevOps-Agent-X',
-    version: '1.1.0',
+    version: '2.0.0',
     demo_mode: DEMO_MODE,
     timestamp: new Date().toISOString(),
   });
 });
 
-// /healthz  – Cloud Run / Kubernetes liveness probe
+// /healthz – Cloud Run / Kubernetes liveness probe
 app.get('/healthz', (req, res) => {
   res.status(200).json({ status: 'ok' });
 });
 
-// ─── /api/generate-fix  (Create) ─────────────────────────────────────────
+// ─── /api/generate-fix  (Create / AI Commentator) ────────────────────────
 app.post('/api/generate-fix', async (req, res) => {
   try {
     const { issueDescription } = req.body;
@@ -184,10 +225,10 @@ ${logs}`;
   }
 });
 
-// ─── /api/analyze-incident  (Integrated Incident Analysis) ───────────────
+// ─── /api/analyze-incident (Spectator-style Integrated Incident Analysis) ─
 app.post('/api/analyze-incident', async (req, res) => {
   try {
-    const { context } = req.body; // { type, payload, service, region }
+    const { context } = req.body;
     if (!context) {
       return res.status(400).json({ error: 'context is required' });
     }
@@ -196,23 +237,40 @@ app.post('/api/analyze-incident', async (req, res) => {
       return res.json(fallbackIncidentAnalysis(context));
     }
 
-    const systemPrompt = `You are an expert DevOps AI agent specialized in incident response.
-Analyze the following DevOps incident context and respond with ONLY valid JSON matching this schema:
+    const systemPrompt = `You are an expert DevOps AI agent AND a sports-style live commentator for DevOps incidents.
+Analyze the following DevOps incident context and respond with ONLY valid JSON matching this exact schema:
 {
+  "match_title": "string – catchy sports-style match title for this incident",
+  "commentary_headline": "string – exciting live commentary headline (emoji encouraged)",
+  "play_by_play": ["string – timestamped play-by-play events with emoji"],
+  "scoreboard": {
+    "home": { "name": "string", "score": number, "status": "string" },
+    "away": { "name": "string", "score": number, "status": "string" },
+    "health_score": number (0-100),
+    "deployment_confidence": number (0-100),
+    "recovery_progress": number (0-100)
+  },
+  "turning_points": ["string – key moments that decided the outcome"],
+  "tactics_board": {
+    "formation": "string – tactical metaphor for the response strategy",
+    "immediate_moves": ["string"],
+    "mid_term_moves": ["string"],
+    "long_term_moves": ["string"]
+  },
   "incident_summary": "string",
   "severity": "LOW|MEDIUM|HIGH|CRITICAL",
-  "risk_score": 1-10,
+  "risk_score": number (1-10),
   "likely_causes": ["string"],
   "recommended_actions": ["string"],
   "rollback_plan": {
-    "description": "string (must include human-approval requirement)",
+    "description": "string (MUST include 'human approval required' language)",
     "steps": ["string"]
   },
   "verification_steps": ["string"],
-  "safety_notes": ["string (must reiterate no autonomous destructive ops)"]
+  "safety_notes": ["string – MUST reiterate no autonomous destructive ops"]
 }
 
-CRITICAL SAFETY RULE: Never include autonomous destructive operations (rm, delete, drop, rollback execution).
+CRITICAL SAFETY RULE: Never include autonomous destructive operations.
 All rollback/delete actions must be framed as human-approved recommendations only.`;
 
     const userPrompt = `Incident context:
@@ -227,7 +285,6 @@ ${typeof context.payload === 'string' ? context.payload : JSON.stringify(context
       contents: [{ role: 'user', parts: [{ text: systemPrompt + '\n\n' + userPrompt }] }],
     });
 
-    // Parse JSON from Gemini response (strip markdown fences if present)
     const raw = response.text.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
     let structured;
     try {
@@ -242,7 +299,7 @@ ${typeof context.payload === 'string' ? context.payload : JSON.stringify(context
   }
 });
 
-// ─── SPA fallback (serve index.html for all non-API routes) ──────────────
+// ─── SPA fallback ─────────────────────────────────────────────────────────
 app.get('*', (req, res) => {
   const indexPath = path.join(__dirname, 'public', 'index.html');
   res.sendFile(indexPath, (err) => {
@@ -253,11 +310,11 @@ app.get('*', (req, res) => {
 // ─── Start ────────────────────────────────────────────────────────────────
 if (require.main === module) {
   app.listen(port, () => {
-    console.log(`DevOps-Agent-X backend listening at http://localhost:${port}`);
+    console.log(`DevOps-Agent-X (Ops Arena) listening at http://localhost:${port}`);
     if (DEMO_MODE) {
-      console.warn('⚠️  DEMO MODE: GEMINI_API_KEY not set. Using deterministic fallbacks.');
+      console.warn('⚠️  DEMO MODE: GEMINI_API_KEY not set. Using deterministic spectator fallbacks.');
     }
   });
 }
 
-module.exports = app; // Export for testing
+module.exports = app;
