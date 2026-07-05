@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>DevOps-Agent-X Dashboard</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  </head>
+  <body>
+    <div id="app">
+      <nav class="sidebar glass">
+        <div class="logo">
+          <div class="logo-icon"></div>
+          <h1>Agent-X</h1>
+        </div>
+        <ul class="nav-links">
+          <li class="active" data-target="dashboard">Dashboard</li>
+          <li data-target="create">Create (Code Fix)</li>
+          <li data-target="operate">Operate (Logs)</li>
+          <li data-target="deliver">Deliver (Deploy)</li>
+        </ul>
+        <div class="status-indicator">
+          <div class="dot pulsing"></div>
+          <span>Agent Online</span>
+        </div>
+      </nav>
+
+      <main class="content">
+        <header class="topbar glass">
+          <h2>Overview</h2>
+          <div class="user-profile">
+            <span>DevOps Admin</span>
+            <div class="avatar"></div>
+          </div>
+        </header>
+
+        <div class="panels">
+          <!-- CREATE PANEL -->
+          <section id="panel-create" class="panel glass">
+            <div class="panel-header">
+              <h3>Create <span class="badge badge-blue">AI Gen</span></h3>
+              <p>Generate code fixes or infrastructure templates from issues.</p>
+            </div>
+            <div class="panel-body">
+              <textarea id="issue-input" placeholder="E.g., The login page is returning a 500 error due to database connection timeout."></textarea>
+              <button id="generate-btn" class="btn primary">Generate Fix</button>
+              <div id="create-loader" class="loader hidden"></div>
+              <div id="create-output" class="output-container hidden">
+                <h4>Suggested Fix</h4>
+                <div class="code-block-container" id="create-result"></div>
+              </div>
+            </div>
+          </section>
+
+          <!-- OPERATE PANEL -->
+          <section id="panel-operate" class="panel glass">
+            <div class="panel-header">
+              <h3>Operate <span class="badge badge-purple">AI Analyze</span></h3>
+              <p>Analyze logs for anomalies and propose remediations.</p>
+            </div>
+            <div class="panel-body">
+              <textarea id="log-input" placeholder="Paste your application logs here for analysis..."></textarea>
+              <button id="analyze-btn" class="btn secondary">Analyze Logs</button>
+              <div id="operate-loader" class="loader hidden"></div>
+              <div id="operate-output" class="output-container hidden">
+                <h4>Analysis & Remediation</h4>
+                <div class="code-block-container" id="operate-result"></div>
+              </div>
+            </div>
+          </section>
+        </div>
+      </main>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <script type="module" src="/main.js"></script>
+  </body>
+</html>
