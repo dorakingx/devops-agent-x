@@ -1,5 +1,7 @@
 # Ops Arena 🏟️ – DevOps Watch Party
 
+**🌐 Live Demo**: https://devops-agent-x-602964828967.asia-northeast1.run.app
+
 **DevOpsの障害対応を、スポーツ観戦のように体験できるAIエージェント**  
 CI/CD、Cloud Run、ログ、ロールバック判断をAIが実況・解説。  
 開発者だけでなく非エンジニアにも運用の緊張感と意思決定を届ける。
@@ -116,10 +118,9 @@ npm ci && npm test
 ## Cloud Run デプロイ
 
 ```bash
-# ワンコマンド
 gcloud run deploy devops-agent-x \
   --source . \
-  --region us-central1 \
+  --region asia-northeast1 \
   --allow-unauthenticated \
   --memory 512Mi \
   --set-secrets GEMINI_API_KEY=GEMINI_API_KEY:latest
@@ -139,7 +140,7 @@ gcloud builds submit --config cloudbuild.yaml
 
 ```bash
 chmod +x demo.sh
-./demo.sh http://localhost:3000
+./demo.sh https://devops-agent-x-602964828967.asia-northeast1.run.app
 # 出力例:
 # 🏆 Match Title:     Cloud Run Final Match: Deployment Showdown
 # 🎙️  Headline:        🔴 LIVE — Container is down, crowd on its feet!

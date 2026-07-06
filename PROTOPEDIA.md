@@ -50,7 +50,7 @@ DevOpsの障害対応を、スポーツ観戦のように理解できるAIエー
 - `GEMINI_API_KEY` 未設定時は deterministic fallback で動作（デモ・審査用途に最適）
 
 ## デモ URL
-（Cloud Run デプロイ後に記入）
+https://devops-agent-x-602964828967.asia-northeast1.run.app
 
 ## ソースコード
 https://github.com/dorakingx/devops-agent-x
