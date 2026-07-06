@@ -2,6 +2,8 @@
 
 **🌐 Live Demo**: https://devops-agent-x-602964828967.asia-northeast1.run.app
 
+**🎥 Demo Video**: [Watch Demo](demo-assets/ops-arena-demo.mp4) | **🖼️ Thumbnail**: [Thumbnail](demo-assets/thumbnail.png)
+
 **DevOpsの障害対応を、スポーツ観戦のように体験できるAIエージェント**  
 CI/CD、Cloud Run、ログ、ロールバック判断をAIが実況・解説。  
 開発者だけでなく非エンジニアにも運用の緊張感と意思決定を届ける。

@@ -33,6 +33,6 @@
 - [ ] README に観戦系コンセプトが反映されている
 - [ ] PROTOPEDIA.md を ProtoPedia に転記・タグ `findy_hackathon` を設定
 - [x] デモ URL を PROTOPEDIA.md に追記
-- [ ] デモ動画または GIF を README / ProtoPedia に追加
+- [x] デモ動画または GIF を README / ProtoPedia に追加
 - [ ] GitHub リポジトリが public
 - [ ] 提出フォーム記入（期限: **2026年7月10日（金）23:59**）

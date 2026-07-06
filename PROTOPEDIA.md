@@ -56,4 +56,9 @@ https://devops-agent-x-602964828967.asia-northeast1.run.app
 https://github.com/dorakingx/devops-agent-x
 
 ## スクリーンショット
-（デプロイ後に追加）
+![Thumbnail](demo-assets/thumbnail.png)
+
+## デモ動画
+[ops-arena-demo.mp4](demo-assets/ops-arena-demo.mp4)
+
+*(Note: ProtoPediaにアップロードする際は、リポジトリ内の `demo-assets/thumbnail.png` と `demo-assets/ops-arena-demo.mp4` を手動でアップロードして設定してください。)*
